@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Secret Santa</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 600px;
+        width: 100%;
+      }
+
+      h1 {
+        color: #667eea;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 30px;
+      }
+
+      .input-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      input[type="text"] {
+        flex: 1;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+      }
+
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      button {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: 600;
+      }
+
+      .btn-add {
+        background: #667eea;
+        color: white;
+      }
+
+      .btn-add:hover {
+        background: #5568d3;
+      }
+
+      .btn-generate {
+        background: #10b981;
+        color: white;
+        width: 100%;
+        padding: 15px;
+        font-size: 18px;
+      }
+
+      .btn-generate:hover {
+        background: #059669;
+      }
+
+      .btn-generate:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+
+      .participants-list {
+        margin-bottom: 20px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .participant-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        background: #f9fafb;
+        border-radius: 8px;
+        margin-bottom: 8px;
+      }
+
+      .participant-name {
+        font-weight: 500;
+        color: #333;
+      }
+
+      .btn-remove {
+        background: #ef4444;
+        color: white;
+        padding: 6px 12px;
+        font-size: 14px;
+      }
+
+      .btn-remove:hover {
+        background: #dc2626;
+      }
+
+      .results {
+        margin-top: 30px;
+        display: none;
+      }
+
+      .results.show {
+        display: block;
+      }
+
+      .result-item {
+        background: #fef3c7;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border-left: 4px solid #f59e0b;
+      }
+
+      .result-item strong {
+        color: #92400e;
+      }
+
+      .error {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .error.show {
+        display: block;
+      }
+
+      .count {
+        text-align: center;
+        color: #666;
+        margin-bottom: 15px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Secret Santa 🎅 </h1>
+      <p class="subtitle">Who will buy presents for whom?</p>
+
+      <div class="error" id="error"></div>
+
+      <div class="input-group">
+        <input
+          type="text"
+          id="nameInput"
+          placeholder="Enter participant name"
+        />
+        <button class="btn-add" onclick="addParticipant()">Add</button>
+      </div>
+
+      <div class="count" id="count">No participants yet</div>
+
+      <div class="participants-list" id="participantsList"></div>
+
+      <button
+        class="btn-generate"
+        id="generateBtn"
+        onclick="generateAssignments()"
+        disabled
+      >
+        Generate Secret Santa
+      </button>
+
+      <div class="results" id="results"></div>
+    </div>
+
+    <script>
+      let participants = [];
+
+      function addParticipant() {
+        const input = document.getElementById("nameInput");
+        const name = input.value.trim();
+
+        if (!name) {
+          showError("Please enter a name");
+          return;
+        }
+
+        if (
+          participants.some((p) => p.name.toLowerCase() === name.toLowerCase())
+        ) {
+          showError("This person is already in the list");
+          return;
+        }
+
+        participants.push({ name });
+        input.value = "";
+        hideError();
+        renderParticipants();
+        updateGenerateButton();
+      }
+
+      function removeParticipant(index) {
+        participants.splice(index, 1);
+        renderParticipants();
+        updateGenerateButton();
+        document.getElementById("results").classList.remove("show");
+      }
+
+      function renderParticipants() {
+        const list = document.getElementById("participantsList");
+        const count = document.getElementById("count");
+
+        count.textContent =
+          participants.length === 0
+            ? "No participants yet"
+            : `${participants.length} participant${
+                participants.length > 1 ? "s" : ""
+              }`;
+
+        list.innerHTML = participants
+          .map(
+            (p, index) => `
+                <div class="participant-item">
+                    <span class="participant-name">${p.name}</span>
+                    <button class="btn-remove" onclick="removeParticipant(${index})">Remove</button>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      function updateGenerateButton() {
+        const btn = document.getElementById("generateBtn");
+        btn.disabled = participants.length < 2;
+      }
+
+      async function generateAssignments() {
+        try {
+          const response = await fetch("/api/generate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ participants }),
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "Failed to generate assignments");
+          }
+
+          const data = await response.json();
+          displayResults(data.assignments);
+        } catch (error) {
+          showError(error.message);
+        }
+      }
+
+      function displayResults(assignments) {
+        const resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML =
+          '<h2 style="margin-bottom: 15px; color: #667eea;">🎁 Results</h2>' +
+          assignments
+            .map(
+              (a) => `
+                    <div class="result-item">
+                        <strong>${a.giver}</strong> will buy a present for <strong>${a.receiver}</strong>
+                    </div>
+                `
+            )
+            .join("");
+        resultsDiv.classList.add("show");
+      }
+
+      function showError(message) {
+        const errorDiv = document.getElementById("error");
+        errorDiv.textContent = message;
+        errorDiv.classList.add("show");
+      }
+
+      function hideError() {
+        const errorDiv = document.getElementById("error");
+        errorDiv.classList.remove("show");
+      }
+
+      // Allow Enter key to add participant
+      document
+        .getElementById("nameInput")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            addParticipant();
+          }
+        });
+    </script>
+  </body>
+</html>
