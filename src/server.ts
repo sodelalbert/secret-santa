@@ -1,8 +1,10 @@
 import express, { Request, Response } from "express";
 import path from "path";
+import fs from "fs";
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const LOG_FILE = path.join(__dirname, "../logs/assignments.log");
 
 app.use(express.json());
 app.use(express.static("public"));
@@ -43,6 +45,36 @@ function assignSecretSanta(participants: Participant[]): Assignment[] {
   return assignments;
 }
 
+// Log assignments to file
+function logAssignments(
+  participants: Participant[],
+  assignments: Assignment[]
+): void {
+  const timestamp = new Date().toISOString();
+  const logHeader = `\n${"=".repeat(60)}\n${timestamp}\n${"-".repeat(60)}\n`;
+
+  // List all participants
+  const participantsList =
+    "Participants:\n" +
+    participants.map((p, index) => `  ${index + 1}. ${p.name}`).join("\n");
+
+  // List assignments
+  const assignmentsList =
+    "\n\nAssignments:\n" +
+    assignments.map((a) => `  ${a.giver} → ${a.receiver}`).join("\n");
+
+  const fullLog = logHeader + participantsList + assignmentsList + "\n";
+
+  // Ensure logs directory exists
+  const logDir = path.dirname(LOG_FILE);
+  if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+  }
+
+  // Append to log file
+  fs.appendFileSync(LOG_FILE, fullLog, "utf-8");
+}
+
 // API endpoint to generate Secret Santa assignments
 app.post("/api/generate", (req: Request, res: Response) => {
   try {
@@ -57,6 +89,10 @@ app.post("/api/generate", (req: Request, res: Response) => {
     }
 
     const assignments = assignSecretSanta(participants);
+
+    // Log the assignments to file
+    logAssignments(participants, assignments);
+
     res.json({ assignments });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });

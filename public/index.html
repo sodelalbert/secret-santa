@@ -98,6 +98,23 @@
         cursor: not-allowed;
       }
 
+      .btn-reset {
+        background: #ef4444;
+        color: white;
+        width: 100%;
+        padding: 15px;
+        font-size: 18px;
+        margin-top: 15px;
+      }
+
+      .btn-reset:hover {
+        background: #dc2626;
+      }
+
+      .btn-reset.hidden {
+        display: none;
+      }
+
       .participants-list {
         margin-bottom: 20px;
         max-height: 200px;
@@ -174,7 +191,7 @@
   </head>
   <body>
     <div class="container">
-      <h1>Secret Santa 🎅 </h1>
+      <h1>Secret Santa 🎅</h1>
       <p class="subtitle">Who will buy presents for whom?</p>
 
       <div class="error" id="error"></div>
@@ -201,11 +218,20 @@
         Generate Secret Santa
       </button>
 
+      <button
+        class="btn-reset hidden"
+        id="resetBtn"
+        onclick="resetAssignments()"
+      >
+        Clear Assignments & Start Over
+      </button>
+
       <div class="results" id="results"></div>
     </div>
 
     <script>
       let participants = [];
+      let assignmentsGenerated = false;
 
       function addParticipant() {
         const input = document.getElementById("nameInput");
@@ -231,10 +257,15 @@
       }
 
       function removeParticipant(index) {
+        if (assignmentsGenerated) {
+          showError(
+            "Cannot modify participants after generating assignments. Please reset first."
+          );
+          return;
+        }
         participants.splice(index, 1);
         renderParticipants();
         updateGenerateButton();
-        document.getElementById("results").classList.remove("show");
       }
 
       function renderParticipants() {
@@ -253,7 +284,11 @@
             (p, index) => `
                 <div class="participant-item">
                     <span class="participant-name">${p.name}</span>
-                    <button class="btn-remove" onclick="removeParticipant(${index})">Remove</button>
+                    <button class="btn-remove" onclick="removeParticipant(${index})" ${
+              assignmentsGenerated
+                ? 'disabled style="opacity: 0.5; cursor: not-allowed;"'
+                : ""
+            }>Remove</button>
                 </div>
             `
           )
@@ -262,10 +297,17 @@
 
       function updateGenerateButton() {
         const btn = document.getElementById("generateBtn");
-        btn.disabled = participants.length < 2;
+        btn.disabled = participants.length < 2 || assignmentsGenerated;
       }
 
       async function generateAssignments() {
+        if (assignmentsGenerated) {
+          showError(
+            "Assignments already generated. Please reset to generate again."
+          );
+          return;
+        }
+
         try {
           const response = await fetch("/api/generate", {
             method: "POST",
@@ -281,10 +323,44 @@
           }
 
           const data = await response.json();
+          assignmentsGenerated = true;
           displayResults(data.assignments);
+          updateGenerateButton();
+
+          // Disable input and add button
+          document.getElementById("nameInput").disabled = true;
+          document.querySelector(".btn-add").disabled = true;
+          document.querySelector(".btn-add").style.opacity = "0.5";
+          document.querySelector(".btn-add").style.cursor = "not-allowed";
+
+          // Show reset button
+          document.getElementById("resetBtn").classList.remove("hidden");
         } catch (error) {
           showError(error.message);
         }
+      }
+
+      function resetAssignments() {
+        assignmentsGenerated = false;
+        participants = [];
+
+        // Clear results
+        document.getElementById("results").classList.remove("show");
+        document.getElementById("results").innerHTML = "";
+
+        // Enable input and add button
+        document.getElementById("nameInput").disabled = false;
+        document.querySelector(".btn-add").disabled = false;
+        document.querySelector(".btn-add").style.opacity = "1";
+        document.querySelector(".btn-add").style.cursor = "pointer";
+
+        // Hide reset button
+        document.getElementById("resetBtn").classList.add("hidden");
+
+        // Re-render
+        renderParticipants();
+        updateGenerateButton();
+        hideError();
       }
 
       function displayResults(assignments) {
