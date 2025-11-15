@@ -45,7 +45,7 @@ npm install
 npm run dev
 
 # Custom port
-npm run dev --port=8080
+PORT=8080 npm run dev:port
 ```
 
 ### Production Mode
@@ -55,7 +55,7 @@ npm run build
 npm start
 
 # Custom port
-npm start --port=5000
+PORT=5000 npm run start:port
 ```
 
 The application will run on `http://localhost:3000` (or your specified port)

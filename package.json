@@ -6,7 +6,9 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "ts-node src/server.ts"
+    "dev": "ts-node src/server.ts",
+    "start:port": "node dist/server.js",
+    "dev:port": "ts-node src/server.ts"
   },
   "keywords": [
     "secret-santa",

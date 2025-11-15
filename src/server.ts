@@ -2,9 +2,7 @@ import express, { Request, Response } from "express";
 import path from "path";
 
 const app = express();
-const PORT = process.env.npm_config_port
-  ? parseInt(process.env.npm_config_port, 10)
-  : 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 app.use(express.json());
 app.use(express.static("public"));
