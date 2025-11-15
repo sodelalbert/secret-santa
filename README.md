@@ -41,7 +41,11 @@ npm install
 ### Development Mode (with hot reload)
 
 ```bash
+# Default port (3000)
 npm run dev
+
+# Custom port
+npm run dev --port=8080
 ```
 
 ### Production Mode
@@ -49,9 +53,12 @@ npm run dev
 ```bash
 npm run build
 npm start
+
+# Custom port
+npm start --port=5000
 ```
 
-The application will run on `http://localhost:3000`
+The application will run on `http://localhost:3000` (or your specified port)
 
 ## How to Use
 
