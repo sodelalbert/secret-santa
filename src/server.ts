@@ -11,6 +11,7 @@ app.use(express.static("public"));
 
 interface Participant {
   name: string;
+  phone?: string;
 }
 
 interface Assignment {
@@ -56,7 +57,12 @@ function logAssignments(
   // List all participants
   const participantsList =
     "Participants:\n" +
-    participants.map((p, index) => `  ${index + 1}. ${p.name}`).join("\n");
+    participants
+      .map(
+        (p, index) =>
+          `  ${index + 1}. ${p.name}${p.phone ? ` (${p.phone})` : ""}`
+      )
+      .join("\n");
 
   // List assignments
   const assignmentsList =
@@ -73,6 +79,9 @@ function logAssignments(
 
   // Append to log file
   fs.appendFileSync(LOG_FILE, fullLog, "utf-8");
+
+  // Also log to console so it appears in docker logs
+  console.log(fullLog);
 }
 
 // API endpoint to generate Secret Santa assignments

@@ -60,6 +60,50 @@ PORT=5000 npm run start:port
 
 The application will run on `http://localhost:3000` (or your specified port)
 
+## Docker Deployment
+
+### Prerequisites
+
+- Docker and Docker Compose installed
+- `.env` file configured (required)
+
+### Setup
+
+1. Copy the example environment file:
+
+```bash
+cp .env.example .env
+```
+
+2. Edit `.env` and set your desired port:
+
+```bash
+PORT=8080
+```
+
+### Running with Docker
+
+```bash
+# Build and start the container
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop the container
+docker compose down
+```
+
+The application will be available at `http://localhost:PORT` (where PORT is defined in your `.env` file).
+
+### Docker Features
+
+- Multi-stage build for optimized image size
+- Persistent logs stored in `./logs` directory
+- Automatic restart on failure
+- Health checks for container monitoring
+- Alpine Linux base for minimal footprint
+
 ## How to Use
 
 1. Open your browser and navigate to `http://localhost:3000`
@@ -107,3 +151,32 @@ The application uses a circular assignment approach:
 3. The last person gives to the first person, creating a complete cycle
 
 This ensures everyone gives exactly one gift and receives exactly one gift.
+
+## Release Notes
+
+Release are accesible on separete branhes.
+
+### v1.0.0 - Initial Release
+
+- Basic functionality to add participants and generate Secret Santa assignments
+- Simple web interface for user interaction
+- Implemented circular assignment algorithm
+- Logging to file for assignment generation events
+
+### v1.1.0 - Docker Support and SMS Integration (Planned)
+
+- Dockerfile added for containerized deployment (not implemented yet)
+- Add phone number option in UI/Backend + logging
+- Edit participant names and phone numbers
+- Dockerization - logs visible in docker log command
+
+### v1.2.0 - UI Improvements
+
+- [ ] Phone number validation
+- [ ] SMS gateway integration
+- [ ] TAB functions improvement
+
+### v1.3.0 - CICD Pipeline
+
+- [ ] Setup CICD pipeline for automated testing and deployment (not implemented yet)
+- [ ] Implement testing with Playwright (not implemented yet)

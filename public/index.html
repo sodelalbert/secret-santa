@@ -46,10 +46,11 @@
         display: flex;
         gap: 10px;
         margin-bottom: 20px;
+        flex-wrap: wrap;
       }
 
-      input[type="text"] {
-        flex: 1;
+      input[type="text"],
+      input[type="tel"] {
         padding: 12px;
         border: 2px solid #e0e0e0;
         border-radius: 8px;
@@ -57,7 +58,18 @@
         transition: border-color 0.3s;
       }
 
-      input[type="text"]:focus {
+      input[type="text"] {
+        flex: 2;
+        min-width: 200px;
+      }
+
+      input[type="tel"] {
+        flex: 1;
+        min-width: 150px;
+      }
+
+      input[type="text"]:focus,
+      input[type="tel"]:focus {
         outline: none;
         border-color: #667eea;
       }
@@ -136,6 +148,12 @@
         color: #333;
       }
 
+      .participant-phone {
+        color: #666;
+        font-size: 0.9em;
+        margin-left: 8px;
+      }
+
       .btn-remove {
         background: #ef4444;
         color: white;
@@ -145,6 +163,23 @@
 
       .btn-remove:hover {
         background: #dc2626;
+      }
+
+      .btn-edit {
+        background: #f59e0b;
+        color: white;
+        padding: 6px 12px;
+        font-size: 14px;
+        margin-right: 5px;
+      }
+
+      .btn-edit:hover {
+        background: #d97706;
+      }
+
+      .participant-actions {
+        display: flex;
+        gap: 5px;
       }
 
       .results {
@@ -202,6 +237,7 @@
           id="nameInput"
           placeholder="Enter participant name"
         />
+        <input type="tel" id="phoneInput" placeholder="Phone (optional)" />
         <button class="btn-add" onclick="addParticipant()">Add</button>
       </div>
 
@@ -234,8 +270,10 @@
       let assignmentsGenerated = false;
 
       function addParticipant() {
-        const input = document.getElementById("nameInput");
-        const name = input.value.trim();
+        const nameInput = document.getElementById("nameInput");
+        const phoneInput = document.getElementById("phoneInput");
+        const name = nameInput.value.trim();
+        const phone = phoneInput.value.trim();
 
         if (!name) {
           showError("Please enter a name");
@@ -249,8 +287,9 @@
           return;
         }
 
-        participants.push({ name });
-        input.value = "";
+        participants.push({ name, phone: phone || undefined });
+        nameInput.value = "";
+        phoneInput.value = "";
         hideError();
         renderParticipants();
         updateGenerateButton();
@@ -268,6 +307,27 @@
         updateGenerateButton();
       }
 
+      function editParticipant(index) {
+        if (assignmentsGenerated) {
+          showError(
+            "Cannot modify participants after generating assignments. Please reset first."
+          );
+          return;
+        }
+
+        const participant = participants[index];
+        document.getElementById("nameInput").value = participant.name;
+        document.getElementById("phoneInput").value = participant.phone || "";
+
+        // Remove the participant - they'll re-add with updated info
+        participants.splice(index, 1);
+        renderParticipants();
+        updateGenerateButton();
+
+        // Focus on name input
+        document.getElementById("nameInput").focus();
+      }
+
       function renderParticipants() {
         const list = document.getElementById("participantsList");
         const count = document.getElementById("count");
@@ -283,12 +343,24 @@
           .map(
             (p, index) => `
                 <div class="participant-item">
-                    <span class="participant-name">${p.name}</span>
-                    <button class="btn-remove" onclick="removeParticipant(${index})" ${
-              assignmentsGenerated
-                ? 'disabled style="opacity: 0.5; cursor: not-allowed;"'
-                : ""
-            }>Remove</button>
+                    <div>
+                        <span class="participant-name">${p.name}</span>
+                        ${
+                          p.phone
+                            ? `<span class="participant-phone">(${p.phone})</span>`
+                            : ""
+                        }
+                    </div>
+                    ${
+                      !assignmentsGenerated
+                        ? `
+                    <div class="participant-actions">
+                        <button class="btn-edit" onclick="editParticipant(${index})">Edit</button>
+                        <button class="btn-remove" onclick="removeParticipant(${index})">Remove</button>
+                    </div>
+                    `
+                        : ""
+                    }
                 </div>
             `
           )
@@ -326,9 +398,11 @@
           assignmentsGenerated = true;
           displayResults(data.assignments);
           updateGenerateButton();
+          renderParticipants(); // Re-render to hide edit/remove buttons
 
           // Disable input and add button
           document.getElementById("nameInput").disabled = true;
+          document.getElementById("phoneInput").disabled = true;
           document.querySelector(".btn-add").disabled = true;
           document.querySelector(".btn-add").style.opacity = "0.5";
           document.querySelector(".btn-add").style.cursor = "not-allowed";
@@ -350,6 +424,7 @@
 
         // Enable input and add button
         document.getElementById("nameInput").disabled = false;
+        document.getElementById("phoneInput").disabled = false;
         document.querySelector(".btn-add").disabled = false;
         document.querySelector(".btn-add").style.opacity = "1";
         document.querySelector(".btn-add").style.cursor = "pointer";
@@ -393,6 +468,14 @@
       // Allow Enter key to add participant
       document
         .getElementById("nameInput")
+        .addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            addParticipant();
+          }
+        });
+
+      document
+        .getElementById("phoneInput")
         .addEventListener("keypress", function (e) {
           if (e.key === "Enter") {
             addParticipant();
