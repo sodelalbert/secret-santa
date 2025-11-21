@@ -2,6 +2,10 @@ import express, { Request, Response } from "express";
 import path from "path";
 import fs from "fs";
 import axios from "axios";
+import dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
@@ -189,13 +193,16 @@ app.post("/api/send-sms", async (req: Request, res: Response) => {
         continue;
       }
 
+      // Type guard ensures giverPhone is defined
+      const phoneNumber = assignment.giverPhone;
+
       try {
         const message = `Hi ${assignment.giver}! 🎅 You are the Secret Santa for ${assignment.receiver}. Happy gifting!`;
 
         await axios.post(
           `https://api.textbee.dev/api/v1/gateway/devices/${TEXTBEE_DEVICE_ID}/sendSMS`,
           {
-            recipients: [assignment.giverPhone],
+            recipients: [phoneNumber],
             message: message,
           },
           {
