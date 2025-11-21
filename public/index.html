@@ -26,7 +26,7 @@
         border-radius: 20px;
         padding: 40px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        max-width: 600px;
+        max-width: 700px;
         width: 100%;
       }
 
@@ -65,7 +65,7 @@
 
       input[type="tel"] {
         flex: 1;
-        min-width: 150px;
+        min-width: 180px;
       }
 
       input[type="text"]:focus,
@@ -124,6 +124,28 @@
       }
 
       .btn-reset.hidden {
+        display: none;
+      }
+
+      .btn-send-sms {
+        background: #8b5cf6;
+        color: white;
+        width: 100%;
+        padding: 15px;
+        font-size: 18px;
+        margin-top: 15px;
+      }
+
+      .btn-send-sms:hover {
+        background: #7c3aed;
+      }
+
+      .btn-send-sms:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+
+      .btn-send-sms.hidden {
         display: none;
       }
 
@@ -216,6 +238,19 @@
         display: block;
       }
 
+      .success {
+        background: #d1fae5;
+        color: #065f46;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .success.show {
+        display: block;
+      }
+
       .count {
         text-align: center;
         color: #666;
@@ -227,9 +262,13 @@
   <body>
     <div class="container">
       <h1>Secret Santa 🎅</h1>
-      <p class="subtitle">Who will buy presents for whom?</p>
+      <p class="subtitle">
+        Who will buy presents for whom? Add list of your deers along with their
+        phone numbers to notify them via SMS. Happy Christmas! 🎄
+      </p>
 
       <div class="error" id="error"></div>
+      <div class="success" id="success"></div>
 
       <div class="input-group">
         <input
@@ -263,11 +302,31 @@
       </button>
 
       <div class="results" id="results"></div>
+
+      <button class="btn-send-sms hidden" id="sendSmsBtn" onclick="sendSMS()">
+        📱 Send SMS to All Participants
+      </button>
     </div>
 
     <script>
       let participants = [];
       let assignmentsGenerated = false;
+
+      function validatePhoneNumber(phone) {
+        // Must start with +48 and have exactly 9 digits after
+        const phoneRegex = /^\+48\d{9}$/;
+        return phoneRegex.test(phone);
+      }
+
+      function formatPhoneNumber(phone) {
+        // Format +48123456789 to +48 123 456 789
+        if (!phone || !phone.startsWith("+48")) return phone;
+        const prefix = phone.substring(0, 3); // +48
+        const digits = phone.substring(3); // 123456789
+        // Split into groups of 3
+        const formatted = digits.match(/.{1,3}/g).join(" ");
+        return `${prefix} ${formatted}`;
+      }
 
       function addParticipant() {
         const nameInput = document.getElementById("nameInput");
@@ -284,6 +343,14 @@
           participants.some((p) => p.name.toLowerCase() === name.toLowerCase())
         ) {
           showError("This person is already in the list");
+          return;
+        }
+
+        // Validate phone number if provided
+        if (phone && !validatePhoneNumber(phone)) {
+          showError(
+            "Phone number must start with +48 and have 9 digits after the prefix (e.g., +48123456789)"
+          );
           return;
         }
 
@@ -347,7 +414,9 @@
                         <span class="participant-name">${p.name}</span>
                         ${
                           p.phone
-                            ? `<span class="participant-phone">(${p.phone})</span>`
+                            ? `<span class="participant-phone">(${formatPhoneNumber(
+                                p.phone
+                              )})</span>`
                             : ""
                         }
                     </div>
@@ -409,8 +478,44 @@
 
           // Show reset button
           document.getElementById("resetBtn").classList.remove("hidden");
+
+          // Show SMS button
+          document.getElementById("sendSmsBtn").classList.remove("hidden");
         } catch (error) {
           showError(error.message);
+        }
+      }
+
+      async function sendSMS() {
+        const smsBtn = document.getElementById("sendSmsBtn");
+        smsBtn.disabled = true;
+        smsBtn.textContent = "📱 Sending SMS...";
+
+        try {
+          const response = await fetch("/api/send-sms", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || "Failed to send SMS");
+          }
+
+          const data = await response.json();
+          const { summary } = data;
+
+          let message = `SMS sent successfully! `;
+          message += `Sent: ${summary.sent}, Failed: ${summary.failed}, Skipped: ${summary.skipped}`;
+
+          showSuccess(message);
+          smsBtn.textContent = "✅ SMS Sent!";
+        } catch (error) {
+          showError(error.message);
+          smsBtn.disabled = false;
+          smsBtn.textContent = "📱 Send SMS to All Participants";
         }
       }
 
@@ -432,10 +537,17 @@
         // Hide reset button
         document.getElementById("resetBtn").classList.add("hidden");
 
+        // Hide and reset SMS button
+        const smsBtn = document.getElementById("sendSmsBtn");
+        smsBtn.classList.add("hidden");
+        smsBtn.disabled = false;
+        smsBtn.textContent = "📱 Send SMS to All Participants";
+
         // Re-render
         renderParticipants();
         updateGenerateButton();
         hideError();
+        hideSuccess();
       }
 
       function displayResults(assignments) {
@@ -463,6 +575,17 @@
       function hideError() {
         const errorDiv = document.getElementById("error");
         errorDiv.classList.remove("show");
+      }
+
+      function showSuccess(message) {
+        const successDiv = document.getElementById("success");
+        successDiv.textContent = message;
+        successDiv.classList.add("show");
+      }
+
+      function hideSuccess() {
+        const successDiv = document.getElementById("success");
+        successDiv.classList.remove("show");
       }
 
       // Allow Enter key to add participant

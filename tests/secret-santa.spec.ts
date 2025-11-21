@@ -132,4 +132,84 @@ test.describe("Secret Santa Application", () => {
     const removeButtons = page.locator(".btn-remove");
     await expect(removeButtons).toHaveCount(0);
   });
+
+  test("should validate phone number format", async ({ page }) => {
+    await navigateToApp(page);
+
+    // Test invalid phone number - no prefix
+    await page.fill("#nameInput", "Alice");
+    await page.fill("#phoneInput", "123456789");
+    await page.click(".btn-add");
+
+    // Check for error message
+    const errorDiv = page.locator("#error");
+    await expect(errorDiv).toBeVisible();
+    await expect(errorDiv).toContainText(
+      "Phone number must start with +48 and have 9 digits"
+    );
+
+    // Clear inputs
+    await page.fill("#nameInput", "");
+    await page.fill("#phoneInput", "");
+
+    // Test invalid phone number - wrong prefix
+    await page.fill("#nameInput", "Bob");
+    await page.fill("#phoneInput", "+49123456789");
+    await page.click(".btn-add");
+    await expect(errorDiv).toBeVisible();
+    await expect(errorDiv).toContainText(
+      "Phone number must start with +48 and have 9 digits"
+    );
+
+    // Clear inputs
+    await page.fill("#nameInput", "");
+    await page.fill("#phoneInput", "");
+
+    // Test invalid phone number - too few digits
+    await page.fill("#nameInput", "Charlie");
+    await page.fill("#phoneInput", "+4812345678");
+    await page.click(".btn-add");
+    await expect(errorDiv).toBeVisible();
+    await expect(errorDiv).toContainText(
+      "Phone number must start with +48 and have 9 digits"
+    );
+
+    // Clear inputs
+    await page.fill("#nameInput", "");
+    await page.fill("#phoneInput", "");
+
+    // Test invalid phone number - too many digits
+    await page.fill("#nameInput", "Dave");
+    await page.fill("#phoneInput", "+481234567890");
+    await page.click(".btn-add");
+    await expect(errorDiv).toBeVisible();
+    await expect(errorDiv).toContainText(
+      "Phone number must start with +48 and have 9 digits"
+    );
+
+    // Test valid phone number
+    await page.fill("#nameInput", "Eve");
+    await page.fill("#phoneInput", "+48123456789");
+    await page.click(".btn-add");
+
+    // Error should be hidden
+    await expect(errorDiv).not.toBeVisible();
+
+    // Participant should be added with phone number
+    const participant = page.locator(".participant-name").first();
+    await expect(participant).toBeVisible();
+    await expect(participant).toContainText("Eve");
+
+    const phone = page.locator(".participant-phone").first();
+    await expect(phone).toBeVisible();
+    await expect(phone).toContainText("+48123456789");
+
+    // Test adding participant without phone (should work)
+    await page.fill("#nameInput", "Frank");
+    await page.fill("#phoneInput", "");
+    await page.click(".btn-add");
+
+    const participants = page.locator(".participant-name");
+    await expect(participants).toHaveCount(2);
+  });
 });
