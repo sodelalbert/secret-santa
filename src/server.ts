@@ -7,7 +7,7 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 const LOG_FILE = path.join(__dirname, "../logs/assignments.log");
 
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "../public")));
 
 interface Participant {
   name: string;
