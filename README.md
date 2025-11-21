@@ -1,21 +1,26 @@
-# Secret Santa 🎅🏼
+# Secret Santa 🎅
 
-A simple web application to randomly assign Secret Santa gift exchanges.
+A web application to randomly assign Secret Santa gift exchanges with SMS notifications and multi-language support.
 
 ## Features
 
-- Add participants by name and phone number (optional)
-- Generate random Secret Santa assignments
-- Send SMS notifications to participants via TextBee
-- Phone number validation (Polish format: +48XXXXXXXXX)
-- Simple and clean web interface
-- Each person is assigned exactly one person to buy a gift for
+- ✨ Add participants by name and phone number (optional)
+- 🎁 Generate random Secret Santa assignments
+- 📱 Send SMS notifications to participants via TextBee
+- 🌍 Multi-language support (Polish & English)
+- ✅ Phone number validation (9 digits with optional + prefix)
+- 📝 Edit and remove participants before generating assignments
+- 🎨 Christmas-themed UI with custom background
+- 📊 Comprehensive logging to files and Docker logs
+- 🔒 Prevents modifications after assignments are generated
 
 ## Tech Stack
 
 - **Backend**: Node.js + Express + TypeScript
-- **Frontend**: Plain HTML/CSS/JavaScript
-- **SMS Service**: TextBee API for SMS notifications
+- **Frontend**: HTML/CSS/JavaScript with translation system
+- **SMS Service**: TextBee API for notifications
+- **Testing**: Playwright for E2E tests
+- **Containerization**: Docker with Docker Compose
 - **Algorithm**: Fisher-Yates shuffle with circular assignment
 
 ## Project Structure
@@ -23,11 +28,21 @@ A simple web application to randomly assign Secret Santa gift exchanges.
 ```text
 secret-santa/
 ├── src/
-│   └── server.ts          # Express server with Secret Santa logic
+│   └── server.ts              # Express server with Secret Santa logic
 ├── public/
-│   └── index.html         # Frontend interface
+│   ├── index.html             # Frontend interface
+│   ├── styles.css             # Christmas-themed styling
+│   ├── translations.js        # Multi-language support (PL/EN)
+│   └── background.png         # Custom background image
+├── tests/
+│   └── secret-santa.spec.ts   # Playwright E2E tests
+├── logs/
+│   └── assignments.log        # Assignment and SMS activity logs
 ├── package.json
 ├── tsconfig.json
+├── playwright.config.ts
+├── Dockerfile
+├── compose.yml
 └── README.md
 ```
 
@@ -112,12 +127,16 @@ The application will be available at `http://localhost:PORT` (where PORT is defi
 ## How to Use
 
 1. Open your browser and navigate to `http://localhost:3000`
-2. Enter participant names one by one (optionally with phone numbers in format +48XXXXXXXXX)
-3. Click "Add" to add each participant
-4. Add at least 2 participants
-5. Click "Generate Secret Santa" to create the assignments
-6. View who will buy presents for whom
-7. (Optional) Click "📱 Send SMS to All Participants" to notify participants via SMS
+2. Select your preferred language (PL/EN) using the language switcher
+3. Enter participant names one by one with optional phone numbers (9 digits)
+4. Click "Add" (or "Dodaj" in Polish) to add each participant
+5. Edit or remove participants as needed before generating
+6. Add at least 2 participants
+7. Click "Generate Gift Assignments" to create the assignments
+8. View who will buy presents for whom
+9. (Optional) If phone numbers were added, click "📱 Send SMS to All Participants" to notify them
+
+**Note**: After generating assignments, you cannot edit participants. Use the reset button to start over.
 
 ## SMS Integration (TextBee)
 
@@ -132,13 +151,23 @@ To enable SMS notifications:
    TEXTBEE_DEVICE_ID=your_device_id_here
    ```
 
-4. Participants with valid phone numbers (+48XXXXXXXXX format) will receive SMS notifications
+4. Participants with valid phone numbers will receive SMS notifications
+5. SMS messages are automatically translated based on the selected language
 
 **SMS Message Format:**
 
-```text
-Hi [Name]! 🎅 You are the Secret Santa for [Receiver Name]. Happy gifting!
-```
+- **Polish**: "Cześć [Name]! 🎅 Jesteś Sekretnym Mikołajem dla [Receiver]. Wesołych Świąt!"
+- **English**: "Hi [Name]! 🎅 You are the Secret Santa for [Receiver]. Happy gifting!"
+
+## Multi-Language Support
+
+The application supports Polish (PL) and English (EN) with:
+
+- **Language switcher** in the top-right corner
+- **Persistent selection** saved to browser localStorage
+- **Translated SMS messages** sent in the selected language
+- **Full UI translation** including buttons, messages, and errors
+- **Default language**: Polish (PL)
 
 ## API Endpoint
 
@@ -174,7 +203,13 @@ Generate Secret Santa assignments.
 
 Send SMS notifications to all participants with phone numbers.
 
-**Request Body:** None (uses last generated assignments)
+**Request Body:**
+
+```json
+{
+  "language": "pl" // or "en" for English
+}
+```
 
 **Response:**
 
@@ -217,9 +252,31 @@ The application uses a circular assignment approach:
 
 This ensures everyone gives exactly one gift and receives exactly one gift.
 
+## Testing
+
+The project includes Playwright E2E tests:
+
+```bash
+# Run tests
+npx playwright test
+
+# Run tests with UI
+npx playwright test --ui
+
+# Run tests in headed mode
+npx playwright test --headed
+```
+
+Tests cover:
+
+- Adding participants
+- Phone number validation
+- Generating assignments
+- UI interactions and error handling
+
 ## Release Notes
 
-Release are accesible on separete branhes.
+Releases are accessible on separate branches.
 
 ### v1.0.0 - Initial Release
 
@@ -228,21 +285,27 @@ Release are accesible on separete branhes.
 - Implemented circular assignment algorithm
 - Logging to file for assignment generation events
 
-### v1.1.0 - Docker Support and SMS Integration (Planned)
+### v1.1.0 - Docker Support and SMS Integration
 
-- Dockerfile added for containerized deployment (not implemented yet)
-- Add phone number option in UI/Backend + logging
-- Edit participant names and phone numbers
-- Dockerization - logs visible in docker log command
+- ✅ Dockerfile added for containerized deployment
+- ✅ Add phone number option in UI/Backend + logging
+- ✅ Edit participant names and phone numbers
+- ✅ Dockerization - logs visible in docker log command
 
 ### v1.2.0 - UI Improvements
 
-- [x] Basic testing with Playwright
-- [x] Phone number validation
-- [x] Textbee integration for SMS notifications
-- [ ] TAB functions improvement
+- ✅ Basic testing with Playwright
+- ✅ Phone number validation (9 digits with optional + prefix)
+- ✅ TextBee integration for SMS notifications
+- ✅ Christmas-themed UI with custom background
+- ✅ Language switcher (Polish/English)
+- ✅ Translated SMS messages
+- ✅ Improved button colors and layout
+- ✅ Mobile-responsive design with fixed viewport
 
-### v1.3.0 - CICD Pipeline
+### v1.3.0 - Future Enhancements
 
-- [ ] Setup CICD pipeline for automated testing and deployment (not implemented yet)
-- [ ] Implement testing with Playwright (not implemented yet)
+- [ ] CI/CD pipeline for automated testing and deployment
+- [ ] Additional language support
+- [ ] Advanced test coverage
+- [ ] TAB key navigation improvements
