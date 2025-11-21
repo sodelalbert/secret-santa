@@ -4,260 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Secret Santa</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-      }
-
-      .container {
-        background: white;
-        border-radius: 20px;
-        padding: 40px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        max-width: 700px;
-        width: 100%;
-      }
-
-      h1 {
-        color: #667eea;
-        margin-bottom: 10px;
-        text-align: center;
-      }
-
-      .subtitle {
-        text-align: center;
-        color: #666;
-        margin-bottom: 30px;
-      }
-
-      .input-group {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-      }
-
-      input[type="text"],
-      input[type="tel"] {
-        padding: 12px;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        font-size: 16px;
-        transition: border-color 0.3s;
-      }
-
-      input[type="text"] {
-        flex: 2;
-        min-width: 200px;
-      }
-
-      input[type="tel"] {
-        flex: 1;
-        min-width: 180px;
-      }
-
-      input[type="text"]:focus,
-      input[type="tel"]:focus {
-        outline: none;
-        border-color: #667eea;
-      }
-
-      button {
-        padding: 12px 24px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.3s;
-        font-weight: 600;
-      }
-
-      .btn-add {
-        background: #667eea;
-        color: white;
-      }
-
-      .btn-add:hover {
-        background: #5568d3;
-      }
-
-      .btn-generate {
-        background: #10b981;
-        color: white;
-        width: 100%;
-        padding: 15px;
-        font-size: 18px;
-      }
-
-      .btn-generate:hover {
-        background: #059669;
-      }
-
-      .btn-generate:disabled {
-        background: #9ca3af;
-        cursor: not-allowed;
-      }
-
-      .btn-reset {
-        background: #ef4444;
-        color: white;
-        width: 100%;
-        padding: 15px;
-        font-size: 18px;
-        margin-top: 15px;
-      }
-
-      .btn-reset:hover {
-        background: #dc2626;
-      }
-
-      .btn-reset.hidden {
-        display: none;
-      }
-
-      .btn-send-sms {
-        background: #8b5cf6;
-        color: white;
-        width: 100%;
-        padding: 15px;
-        font-size: 18px;
-        margin-top: 15px;
-      }
-
-      .btn-send-sms:hover {
-        background: #7c3aed;
-      }
-
-      .btn-send-sms:disabled {
-        background: #9ca3af;
-        cursor: not-allowed;
-      }
-
-      .btn-send-sms.hidden {
-        display: none;
-      }
-
-      .participants-list {
-        margin-bottom: 20px;
-        max-height: 300px;
-        overflow-y: auto;
-      }
-
-      .participant-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px;
-        background: #f9fafb;
-        border-radius: 8px;
-        margin-bottom: 8px;
-      }
-
-      .participant-name {
-        font-weight: 500;
-        color: #333;
-      }
-
-      .participant-phone {
-        color: #666;
-        font-size: 0.9em;
-        margin-left: 8px;
-      }
-
-      .btn-remove {
-        background: #ef4444;
-        color: white;
-        padding: 6px 12px;
-        font-size: 14px;
-      }
-
-      .btn-remove:hover {
-        background: #dc2626;
-      }
-
-      .btn-edit {
-        background: #f59e0b;
-        color: white;
-        padding: 6px 12px;
-        font-size: 14px;
-        margin-right: 5px;
-      }
-
-      .btn-edit:hover {
-        background: #d97706;
-      }
-
-      .participant-actions {
-        display: flex;
-        gap: 5px;
-      }
-
-      .results {
-        margin-top: 30px;
-        display: none;
-      }
-
-      .results.show {
-        display: block;
-      }
-
-      .result-item {
-        background: #fef3c7;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        border-left: 4px solid #f59e0b;
-      }
-
-      .result-item strong {
-        color: #92400e;
-      }
-
-      .error {
-        background: #fee2e2;
-        color: #991b1b;
-        padding: 12px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        display: none;
-      }
-
-      .error.show {
-        display: block;
-      }
-
-      .success {
-        background: #d1fae5;
-        color: #065f46;
-        padding: 12px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        display: none;
-      }
-
-      .success.show {
-        display: block;
-      }
-
-      .count {
-        text-align: center;
-        color: #666;
-        margin-bottom: 15px;
-        font-size: 14px;
-      }
-    </style>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="container">
@@ -290,7 +37,7 @@
         onclick="generateAssignments()"
         disabled
       >
-        Generate Secret Santa
+        Generate Gift Assignments 🎁
       </button>
 
       <button
@@ -313,8 +60,8 @@
       let assignmentsGenerated = false;
 
       function validatePhoneNumber(phone) {
-        // Accept phone numbers with optional + prefix and at least 9 digits
-        const phoneRegex = /^\+?\d{9,15}$/;
+        // Accept phone numbers with optional + prefix and exactly 9 digits
+        const phoneRegex = /^\+?\d{9}$/;
         return phoneRegex.test(phone);
       }
 
@@ -362,7 +109,7 @@
         // Validate phone number if provided
         if (phone && !validatePhoneNumber(phone)) {
           showError(
-            "Phone number must contain 9-15 digits (e.g., +48123456789 or 123456789)"
+            "Phone number must contain exactly 9 digits (e.g., 123456789)"
           );
           return;
         }
@@ -566,7 +313,7 @@
       function displayResults(assignments) {
         const resultsDiv = document.getElementById("results");
         resultsDiv.innerHTML =
-          '<h2 style="margin-bottom: 15px; color: #667eea;">🎁 Results</h2>' +
+          '<h2 style="margin-bottom: 15px; color: #c41e3a;">🎁 Results</h2>' +
           assignments
             .map(
               (a) => `

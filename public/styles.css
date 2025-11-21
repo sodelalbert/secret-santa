@@ -1,0 +1,265 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  background: url("background.png") center center / cover no-repeat fixed;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
+  height: 100%;
+  position: fixed;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.container {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 700px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+h1 {
+  color: #c41e3a;
+  margin-bottom: 10px;
+  text-align: center;
+  font-size: 48px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+input[type="text"],
+input[type="tel"] {
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+input[type="text"] {
+  flex: 2;
+  min-width: 200px;
+}
+
+input[type="tel"] {
+  flex: 1;
+  min-width: 180px;
+}
+
+input[type="text"]:focus,
+input[type="tel"]:focus {
+  outline: none;
+  border-color: #28a745;
+}
+
+button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 600;
+}
+
+.btn-add {
+  background: #17bb53c5;
+  color: white;
+}
+
+.btn-add:hover {
+  background: #16a34a;
+}
+
+.btn-generate {
+  background: #28a745;
+  color: white;
+  width: 100%;
+  padding: 15px;
+  font-size: 18px;
+}
+
+.btn-generate:hover {
+  background: #47e669;
+}
+
+.btn-generate:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.btn-reset {
+  background: #dc2626;
+  color: white;
+  width: 100%;
+  padding: 15px;
+  font-size: 18px;
+  margin-top: 15px;
+}
+
+.btn-reset:hover {
+  background: #b91c1c;
+}
+
+.btn-reset.hidden {
+  display: none;
+}
+
+.btn-send-sms {
+  background: #28a745;
+  color: white;
+  width: 100%;
+  padding: 15px;
+  font-size: 18px;
+  margin-top: 15px;
+}
+
+.btn-send-sms:hover {
+  background: #218838;
+}
+
+.btn-send-sms:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.btn-send-sms.hidden {
+  display: none;
+}
+
+.participants-list {
+  margin-bottom: 20px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.participant-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.participant-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.participant-phone {
+  color: #666;
+  font-size: 0.9em;
+  margin-left: 8px;
+}
+
+.btn-remove {
+  background: #c41e3a;
+  color: white;
+  padding: 6px 12px;
+  font-size: 14px;
+}
+
+.btn-remove:hover {
+  background: #a01729;
+}
+
+.btn-edit {
+  background: #f4a300;
+  color: white;
+  padding: 6px 12px;
+  font-size: 14px;
+  margin-right: 5px;
+}
+
+.btn-edit:hover {
+  background: #e09200;
+}
+
+.participant-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.results {
+  margin-top: 30px;
+  display: none;
+}
+
+.results.show {
+  display: block;
+}
+
+.result-item {
+  background: #fef3c7;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border-left: 4px solid #f59e0b;
+}
+
+.result-item strong {
+  color: #92400e;
+}
+
+.error {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: none;
+}
+
+.error.show {
+  display: block;
+}
+
+.success {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: none;
+}
+
+.success.show {
+  display: block;
+}
+
+.count {
+  text-align: center;
+  color: #666;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
