@@ -178,6 +178,10 @@ app.post("/api/send-sms", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "No assignments generated yet" });
     }
 
+    // Get language from request body
+    const { language } = req.body;
+    const lang = language || "pl"; // Default to Polish
+
     const { assignments } = lastAssignments;
     const results = [];
     let successCount = 0;
@@ -197,7 +201,13 @@ app.post("/api/send-sms", async (req: Request, res: Response) => {
       const phoneNumber = assignment.giverPhone;
 
       try {
-        const message = `Hi ${assignment.giver}! 🎅 You are the Secret Santa for ${assignment.receiver}. Happy gifting!`;
+        // Create message based on language
+        let message: string;
+        if (lang === "pl") {
+          message = `Cześć ${assignment.giver}! 🎅 Jesteś Sekretnym Mikołajem dla ${assignment.receiver}. Wesołych Świąt! 🎄`;
+        } else {
+          message = `Hi ${assignment.giver}! 🎅 You are the Secret Santa for ${assignment.receiver}. Happy gifting! 🎄`;
+        }
 
         await axios.post(
           `https://api.textbee.dev/api/v1/gateway/devices/${TEXTBEE_DEVICE_ID}/sendSMS`,

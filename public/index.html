@@ -5,8 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Secret Santa</title>
     <link rel="stylesheet" href="styles.css" />
+    <script src="translations.js"></script>
   </head>
   <body>
+    <div class="language-switcher">
+      <button onclick="setLanguage('pl')" class="lang-btn" id="lang-pl">
+        PL
+      </button>
+      <button onclick="setLanguage('en')" class="lang-btn" id="lang-en">
+        EN
+      </button>
+    </div>
     <div class="container">
       <h1>Secret Santa 🎅</h1>
       <p class="subtitle">
@@ -95,22 +104,20 @@
         const phone = phoneInput.value.trim();
 
         if (!name) {
-          showError("Please enter a name");
+          showError(t("errors.enterName"));
           return;
         }
 
         if (
           participants.some((p) => p.name.toLowerCase() === name.toLowerCase())
         ) {
-          showError("This person is already in the list");
+          showError(t("errors.duplicateName"));
           return;
         }
 
         // Validate phone number if provided
         if (phone && !validatePhoneNumber(phone)) {
-          showError(
-            "Phone number must contain exactly 9 digits (e.g., 123456789)"
-          );
+          showError(t("errors.invalidPhone"));
           return;
         }
 
@@ -124,9 +131,7 @@
 
       function removeParticipant(index) {
         if (assignmentsGenerated) {
-          showError(
-            "Cannot modify participants after generating assignments. Please reset first."
-          );
+          showError(t("errors.cannotModify"));
           return;
         }
         participants.splice(index, 1);
@@ -136,9 +141,7 @@
 
       function editParticipant(index) {
         if (assignmentsGenerated) {
-          showError(
-            "Cannot modify participants after generating assignments. Please reset first."
-          );
+          showError(t("errors.cannotModify"));
           return;
         }
 
@@ -161,9 +164,11 @@
 
         count.textContent =
           participants.length === 0
-            ? "No participants yet"
-            : `${participants.length} participant${
-                participants.length > 1 ? "s" : ""
+            ? t("noParticipants")
+            : `${participants.length} ${
+                participants.length === 1
+                  ? t("participantCount.singular")
+                  : t("participantCount.plural")
               }`;
 
         list.innerHTML = participants
@@ -184,8 +189,12 @@
                       !assignmentsGenerated
                         ? `
                     <div class="participant-actions">
-                        <button class="btn-edit" onclick="editParticipant(${index})">Edit</button>
-                        <button class="btn-remove" onclick="removeParticipant(${index})">Remove</button>
+                        <button class="btn-edit" onclick="editParticipant(${index})">${t(
+                            "editButton"
+                          )}</button>
+                        <button class="btn-remove" onclick="removeParticipant(${index})">${t(
+                            "removeButton"
+                          )}</button>
                     </div>
                     `
                         : ""
@@ -203,9 +212,7 @@
 
       async function generateAssignments() {
         if (assignmentsGenerated) {
-          showError(
-            "Assignments already generated. Please reset to generate again."
-          );
+          showError(t("errors.alreadyGenerated"));
           return;
         }
 
@@ -220,7 +227,7 @@
 
           if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.error || "Failed to generate assignments");
+            throw new Error(error.error || t("errors.failedToGenerate"));
           }
 
           const data = await response.json();
@@ -239,8 +246,14 @@
           // Show reset button
           document.getElementById("resetBtn").classList.remove("hidden");
 
-          // Show SMS button
-          document.getElementById("sendSmsBtn").classList.remove("hidden");
+          // Show SMS button only if there's at least one participant with a phone number
+          const hasPhoneNumbers = participants.some((p) => p.phone);
+          const smsBtn = document.getElementById("sendSmsBtn");
+          if (hasPhoneNumbers) {
+            smsBtn.classList.remove("hidden");
+          } else {
+            smsBtn.classList.add("hidden");
+          }
         } catch (error) {
           showError(error.message);
         }
@@ -249,7 +262,7 @@
       async function sendSMS() {
         const smsBtn = document.getElementById("sendSmsBtn");
         smsBtn.disabled = true;
-        smsBtn.textContent = "📱 Sending SMS...";
+        smsBtn.textContent = t("sendingSms");
 
         try {
           const response = await fetch("/api/send-sms", {
@@ -257,25 +270,28 @@
             headers: {
               "Content-Type": "application/json",
             },
+            body: JSON.stringify({ language: currentLang }),
           });
 
           if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.error || "Failed to send SMS");
+            throw new Error(error.error || t("errors.failedToSendSms"));
           }
 
           const data = await response.json();
           const { summary } = data;
 
-          let message = `SMS sent successfully! `;
-          message += `Sent: ${summary.sent}, Failed: ${summary.failed}, Skipped: ${summary.skipped}`;
+          let message = t("success.smsSummary")
+            .replace("{sent}", summary.sent)
+            .replace("{failed}", summary.failed)
+            .replace("{skipped}", summary.skipped);
 
           showSuccess(message);
-          smsBtn.textContent = "✅ SMS Sent!";
+          smsBtn.textContent = t("smsSent");
         } catch (error) {
           showError(error.message);
           smsBtn.disabled = false;
-          smsBtn.textContent = "📱 Send SMS to All Participants";
+          smsBtn.textContent = t("sendSmsButton");
         }
       }
 
@@ -301,7 +317,7 @@
         const smsBtn = document.getElementById("sendSmsBtn");
         smsBtn.classList.add("hidden");
         smsBtn.disabled = false;
-        smsBtn.textContent = "📱 Send SMS to All Participants";
+        smsBtn.textContent = t("sendSmsButton");
 
         // Re-render
         renderParticipants();
@@ -313,12 +329,16 @@
       function displayResults(assignments) {
         const resultsDiv = document.getElementById("results");
         resultsDiv.innerHTML =
-          '<h2 style="margin-bottom: 15px; color: #c41e3a;">🎁 Results</h2>' +
+          `<h2 style="margin-bottom: 15px; color: #c41e3a;">${t(
+            "resultsTitle"
+          )}</h2>` +
           assignments
             .map(
               (a) => `
                     <div class="result-item">
-                        <strong>${a.giver}</strong> will buy a present for <strong>${a.receiver}</strong>
+                        <strong>${a.giver}</strong> ${t(
+                "willBuyFor"
+              )} <strong>${a.receiver}</strong>
                     </div>
                 `
             )
@@ -364,6 +384,13 @@
             addParticipant();
           }
         });
+
+      // Initialize language on load
+      document.addEventListener("DOMContentLoaded", function () {
+        const savedLang = currentLang;
+        document.getElementById("lang-" + savedLang).classList.add("active");
+        updateUI();
+      });
     </script>
   </body>
 </html>
