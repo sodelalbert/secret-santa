@@ -13,6 +13,7 @@ const translations = {
     },
     generateButton: "Generate Gift Assignments 🎁",
     resetButton: "Clear Assignments & Start Over",
+    showResultsLabel: "I want to see the results",
     sendSmsButton: "📱 Send SMS to All Participants",
     sendingSms: "📱 Sending SMS...",
     smsSent: "✅ SMS Sent!",
@@ -51,6 +52,7 @@ const translations = {
     },
     generateButton: "Generuj listę Mikołajów 🎁",
     resetButton: "Wyczyść i Zacznij Od Nowa",
+    showResultsLabel: "Chcę zobaczyć wyniki",
     sendSmsButton: "📱 Wyślij SMS do Wszystkich",
     sendingSms: "📱 Wysyłanie SMS...",
     smsSent: "✅ SMS Wysłany!",
@@ -106,6 +108,8 @@ function updateUI() {
   document.querySelector(".btn-add").textContent = t("addButton");
   document.getElementById("generateBtn").textContent = t("generateButton");
   document.getElementById("resetBtn").textContent = t("resetButton");
+  document.getElementById("showResultsLabel").textContent =
+    t("showResultsLabel");
 
   const sendSmsBtn = document.getElementById("sendSmsBtn");
   if (sendSmsBtn.textContent.includes("✅")) {

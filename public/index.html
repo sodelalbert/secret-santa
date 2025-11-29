@@ -57,6 +57,17 @@
         Clear Assignments & Start Over
       </button>
 
+      <div class="checkbox-container hidden" id="showResultsContainer">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            id="showResultsCheckbox"
+            onchange="toggleResults()"
+          />
+          <span id="showResultsLabel">I want to see the results</span>
+        </label>
+      </div>
+
       <div class="results" id="results"></div>
 
       <button class="btn-send-sms hidden" id="sendSmsBtn" onclick="sendSMS()">
@@ -303,6 +314,16 @@
         document.getElementById("results").classList.remove("show");
         document.getElementById("results").innerHTML = "";
 
+        // Hide and uncheck the results checkbox
+        const showResultsContainer = document.getElementById(
+          "showResultsContainer"
+        );
+        const showResultsCheckbox = document.getElementById(
+          "showResultsCheckbox"
+        );
+        showResultsContainer.classList.add("hidden");
+        showResultsCheckbox.checked = false;
+
         // Enable input and add button
         document.getElementById("nameInput").disabled = false;
         document.getElementById("phoneInput").disabled = false;
@@ -343,7 +364,24 @@
                 `
             )
             .join("");
-        resultsDiv.classList.add("show");
+        // Don't show results immediately - wait for checkbox
+        resultsDiv.classList.remove("show");
+
+        // Show checkbox container
+        document
+          .getElementById("showResultsContainer")
+          .classList.remove("hidden");
+      }
+
+      function toggleResults() {
+        const checkbox = document.getElementById("showResultsCheckbox");
+        const resultsDiv = document.getElementById("results");
+
+        if (checkbox.checked) {
+          resultsDiv.classList.add("show");
+        } else {
+          resultsDiv.classList.remove("show");
+        }
       }
 
       function showError(message) {
